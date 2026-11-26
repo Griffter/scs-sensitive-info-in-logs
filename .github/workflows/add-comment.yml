@@ -1,0 +1,26 @@
+name: PR Notification Pipeline
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize]
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run vulnerable notification action
+        uses: dcodemy/scs-secret-action@e63eb4aca37ec47c20f3f18e8c2ec30deb3693d5
+        with:
+          auth-token: ${{ github.token }}
+          notification-context: ${{ github.event.pull_request.title }}
+
+      # The leaked token expires when the job ends. Keep the lab window open so
+      # the student can decode it and dispatch the reward workflow.
+      - name: Keep token valid for exercise
+        if: always()
+        run: sleep 180
